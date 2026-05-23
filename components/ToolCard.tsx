@@ -210,11 +210,11 @@ function ToolResult({
           v={r.fetched ? 'Website fetched ✓' : 'Used general knowledge'}
           valueColor={r.fetched ? 'var(--green-400)' : 'var(--amber-400)'}
         />
-        {r.websiteContent && (
-          <p style={{ fontSize: '11px', color: 'var(--zinc-600)', marginTop: '4px', lineHeight: 1.6 }}>
-            {String(r.websiteContent).slice(0, 220)}…
-          </p>
-        )}
+       {(typeof r.websiteContent === 'string' || typeof r.websiteContent === 'number') && (
+  <p style={{ fontSize: '11px', color: 'var(--zinc-600)', marginTop: '4px', lineHeight: 1.6 }}>
+    {String(r.websiteContent).slice(0, 220)}…
+  </p>
+)}
       </div>
     )
   }
