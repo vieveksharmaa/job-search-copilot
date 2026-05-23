@@ -271,11 +271,18 @@ function ResumeOutput({ result }: { result: Record<string, unknown> }) {
 
 // ── Cover Letter Output ───────────────────────────────────────────────────────
 
+// ── Cover Letter Output ───────────────────────────────────────────────────────
+
 function CoverLetterOutput({ result }: { result: Record<string, unknown> }) {
   const [copied, setCopied] = useState(false)
+  
+  // Extract values with proper type checking
+  const coverLetter = result.coverLetter as string | undefined ?? ''
+  const subject = result.subject as string | undefined ?? ''
+  const toneNotes = result.toneNotes as string | undefined
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(String(result.coverLetter ?? ''))
+    navigator.clipboard.writeText(coverLetter)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -309,7 +316,7 @@ function CoverLetterOutput({ result }: { result: Record<string, unknown> }) {
               whiteSpace: 'nowrap',
             }}
           >
-            {String(result.subject ?? '')}
+            {subject}
           </span>
         </div>
         <button
@@ -348,12 +355,12 @@ function CoverLetterOutput({ result }: { result: Record<string, unknown> }) {
             fontFamily: 'var(--font-sans)',
           }}
         >
-          {String(result.coverLetter ?? '')}
+          {coverLetter}
         </pre>
       </div>
 
       {/* Tone note */}
-      {result.toneNotes && (
+      {toneNotes && (
         <p
           style={{
             fontSize: '11px',
@@ -363,7 +370,7 @@ function CoverLetterOutput({ result }: { result: Record<string, unknown> }) {
             borderLeft: '2px solid var(--zinc-800)',
           }}
         >
-          {String(result.toneNotes)}
+          {toneNotes}
         </p>
       )}
     </div>
