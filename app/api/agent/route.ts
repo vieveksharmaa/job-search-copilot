@@ -2,7 +2,6 @@ import { streamText, tool, type LanguageModel } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { google } from '@ai-sdk/google'
-import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 
 export const runtime = 'nodejs'
@@ -10,26 +9,41 @@ export const maxDuration = 90
 
 // ─── Provider selection ────────────────────────────────────────────────────────
 // Set ACTIVE_PROVIDER in .env.local to switch between providers.
-// Valid values: "openai" | "anthropic" | "groq" | "google"
 //
-// NOTE: Groq's free tier (12k TPM) is too limited for this 5-step agent.
-// Recommended: anthropic (Claude Haiku — ~$0.002/run, free $5 on signup)
-// Sign up: https://console.anthropic.com/settings/keys
-
-const groq = createGroq()
+// Valid values:
+//   anthropic          → claude-haiku-4-5      (recommended, ~$0.002/run)
+//   anthropic-sonnet   → claude-sonnet-4-5
+//   openai             → gpt-4o-mini
+//   openai-gpt4o       → gpt-4o
+//   google             → gemini-2.0-flash
+//   google-pro         → gemini-1.5-pro
+//
+// Get keys:
+//   Anthropic → https://console.anthropic.com/settings/keys
+//   OpenAI    → https://platform.openai.com/api-keys
+//   Google    → https://aistudio.google.com/app/apikey
 
 const PROVIDERS: Record<string, LanguageModel> = {
-  openai:    openai('gpt-4o-mini'),
-  anthropic: anthropic('claude-haiku-4-5-20251001'),
-  groq:      groq('llama-3.3-70b-versatile'),
-  google:    google('gemini-2.0-flash'),
+  // ── Anthropic ──────────────────────────────────────────────────────────────
+  'anthropic':        anthropic('claude-haiku-4-5-20251001'),
+  'anthropic-sonnet': anthropic('claude-sonnet-4-5-20251001'),
+
+  // ── OpenAI ─────────────────────────────────────────────────────────────────
+  'openai':           openai('gpt-4o-mini'),
+  'openai-gpt4o':     openai('gpt-4o'),
+
+  // ── Google Gemini ──────────────────────────────────────────────────────────
+  'google':           google('gemini-2.0-flash'),
+  'google-pro':       google('gemini-1.5-pro'),
 }
 
 const REQUIRED_KEYS: Record<string, string> = {
-  openai:    'OPENAI_API_KEY',
-  anthropic: 'ANTHROPIC_API_KEY',
-  groq:      'GROQ_API_KEY',
-  google:    'GOOGLE_GENERATIVE_AI_API_KEY',
+  'anthropic':        'ANTHROPIC_API_KEY',
+  'anthropic-sonnet': 'ANTHROPIC_API_KEY',
+  'openai':           'OPENAI_API_KEY',
+  'openai-gpt4o':     'OPENAI_API_KEY',
+  'google':           'GOOGLE_GENERATIVE_AI_API_KEY',
+  'google-pro':       'GOOGLE_GENERATIVE_AI_API_KEY',
 }
 
 // ─── System prompt ─────────────────────────────────────────────────────────────
@@ -61,7 +75,7 @@ export async function POST(req: Request) {
   if (!model) {
     return new Response(
       JSON.stringify({
-        error: `Unknown provider "${provider}". Valid values: ${Object.keys(PROVIDERS).join(', ')}`,
+        error: `Unknown provider "${provider}". Valid values: ${Object.keys(PROVIDERS).join(' | ')}`,
       }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     )
@@ -71,7 +85,11 @@ export async function POST(req: Request) {
   if (!process.env[requiredKey]) {
     return new Response(
       JSON.stringify({
-        error: `${requiredKey} is not set in .env.local (required for provider "${provider}"). See https://console.anthropic.com/settings/keys`,
+        error: `${requiredKey} is not set in .env.local. Get a key at: ${
+          provider.startsWith('anthropic') ? 'https://console.anthropic.com/settings/keys' :
+          provider.startsWith('openai')    ? 'https://platform.openai.com/api-keys' :
+                                             'https://aistudio.google.com/app/apikey'
+        }`,
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
@@ -82,6 +100,9 @@ export async function POST(req: Request) {
     system: SYSTEM_PROMPT,
     messages,
     maxSteps: 10,
+    // Forces the model to always call a tool — never return plain text.
+    // Supported by Anthropic, OpenAI, and Google Gemini via the Vercel AI SDK.
+    toolChoice: 'required',
     tools: {
       // ─── Tool 1: Fetch Company Info ───────────────────────────────────────────
       fetchCompanyInfo: tool({

@@ -1,51 +1,54 @@
 # Job Application Co-Pilot
 
-> Paste a job description and your resume. In under 30 seconds, get a tailored resume rewrite, personalized cover letter, and smart interview questions — powered by a 5-step AI agent.
+Paste a job description and your resume. In under 30 seconds, get a tailored resume rewrite, personalized cover letter, and smart interview questions — powered by a 5-step AI agent.
 
 **[🚀 Live Demo →](https://job-search-copilot-rho.vercel.app/)**
 
 ---
 
+## Supported providers
+
+> ⚠️ **Only Anthropic, OpenAI, and Google Gemini are supported.**
+> Groq and NVIDIA NIM are intentionally excluded — their hosted APIs do not
+> reliably support `toolChoice: 'required'` with multi-tool streaming agents,
+> which this app depends on.
+
+| `ACTIVE_PROVIDER` | Model | Cost |
+|-------------------|-------|------|
+| `anthropic` *(recommended)* | claude-haiku-4-5 | ~$0.002/run · free $5 on signup |
+| `anthropic-sonnet` | claude-sonnet-4-5 | ~$0.015/run |
+| `openai` | gpt-4o-mini | ~$0.003/run |
+| `openai-gpt4o` | gpt-4o | ~$0.02/run |
+| `google` | gemini-2.0-flash | free tier available |
+| `google-pro` | gemini-1.5-pro | pay-as-you-go |
+
+---
+
 ## What it does
 
-The app runs a five-step agentic pipeline on every submission:
+Runs a five-step agentic pipeline on every submission:
 
 | Step | Tool | Output |
 |------|------|--------|
-| 1 | `fetchCompanyInfo` | Fetches the company website live to extract mission, values, and culture |
-| 2 | `analyzeJobDescription` | Extracts required skills, responsibilities, experience level, and cultural signals |
-| 3 | `rewriteResumeBullets` | Rewrites every resume bullet with JD keywords, action verbs, and an ATS match score |
-| 4 | `draftCoverLetter` | Writes a full 3–4 paragraph cover letter with a ready-to-send subject line |
-| 5 | `suggestInterviewQuestions` | Generates 6–8 smart questions to ask the interviewer, with reasoning per question |
+| 1 | `fetchCompanyInfo` | Fetches the company website live |
+| 2 | `analyzeJobDescription` | Extracts skills, responsibilities, culture signals |
+| 3 | `rewriteResumeBullets` | Rewrites every bullet with JD keywords + ATS score |
+| 4 | `draftCoverLetter` | Full 3–4 paragraph cover letter with subject line |
+| 5 | `suggestInterviewQuestions` | 6–8 smart questions to ask the interviewer |
 
-All steps stream in real time — you watch each one light up as it completes.
+All steps stream in real time.
 
 ---
 
 ## Tech stack
 
-- **[Vercel AI SDK](https://sdk.vercel.ai)** — `streamText` with `maxSteps: 10` for multi-step tool calling
-- **Next.js 14** (App Router)
-- **TypeScript** + **Zod** for end-to-end type safety on every tool schema
-- **Tailwind CSS**
-- **pdfjs-dist** — PDF parsing runs entirely in the browser; your file never leaves your device
-
-### Supported AI providers
-
-Switch providers via a single env variable — no code changes needed.
-
-| Provider | Model | Env variable |
-|----------|-------|-------------|
-| **Anthropic** *(recommended)* | `claude-haiku-4-5` | `ANTHROPIC_API_KEY` |
-| OpenAI | `gpt-4o-mini` | `OPENAI_API_KEY` |
-| Google | `gemini-2.0-flash` | `GOOGLE_GENERATIVE_AI_API_KEY` |
-| Groq | `llama-3.3-70b-versatile` | `GROQ_API_KEY` |
+- **[Vercel AI SDK](https://sdk.vercel.ai)** — `streamText` + `toolChoice: 'required'` for reliable multi-step tool calling
+- **Next.js 14** (App Router) · **TypeScript** · **Zod** · **Tailwind CSS**
+- **pdfjs-dist** — PDF parsing runs entirely in the browser
 
 ---
 
 ## Getting started
-
-### 1. Clone and install
 
 ```bash
 git clone https://github.com/vivekjangiir/job-search-copilot.git
@@ -53,29 +56,30 @@ cd job-search-copilot
 npm install
 ```
 
-### 2. Add your API key
+Copy `.env.example` to `.env.local` and fill in one API key:
 
-Create a `.env.local` file in the project root. Pick any one provider:
+```bash
+cp .env.example .env.local
+```
 
 ```env
 # Recommended — ~$0.002 per run, free $5 credit on signup
-ANTHROPIC_API_KEY=your-key-here
 ACTIVE_PROVIDER=anthropic
+ANTHROPIC_API_KEY=your-key-here
 
-# Or use any other supported provider
-# OPENAI_API_KEY=your-key-here
+# Or use OpenAI
 # ACTIVE_PROVIDER=openai
+# OPENAI_API_KEY=your-key-here
 
-# GOOGLE_GENERATIVE_AI_API_KEY=your-key-here
+# Or use Google Gemini (free tier available)
 # ACTIVE_PROVIDER=google
-
-# GROQ_API_KEY=your-key-here
-# ACTIVE_PROVIDER=groq
+# GOOGLE_GENERATIVE_AI_API_KEY=your-key-here
 ```
 
-Get an Anthropic key at [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys).
-
-### 3. Run
+Get keys:
+- Anthropic → [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+- OpenAI → [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- Google → [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 
 ```bash
 npm run dev
@@ -85,12 +89,12 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## How to use
+## Deployment
 
-1. **Paste the job description** — include the company URL for best results (the agent will fetch the site live)
-2. **Add your resume** — paste the text directly or drag-and-drop a PDF (parsed client-side)
-3. **Hit Run Agent** — watch the 5-step trace stream in real time
-4. **Copy and apply** — review resume bullets, cover letter, and interview questions across the output tabs
+1. Push to GitHub
+2. Import at [vercel.com/new](https://vercel.com/new)
+3. Add `ACTIVE_PROVIDER` + the matching API key as environment variables
+4. Deploy
 
 ---
 
@@ -100,33 +104,10 @@ Open [http://localhost:3000](http://localhost:3000).
 app/
   page.tsx              # Landing page
   copilot/page.tsx      # Main app
-  api/agent/route.ts    # Streaming agent endpoint (all 5 tools defined here)
+  api/agent/route.ts    # Streaming agent (all 5 tools + provider config)
 components/
   LeftPanel.tsx         # Inputs (name, JD, resume, PDF upload)
   RightPanel.tsx        # Agent trace / step progress
   OutputTabs.tsx        # Tabbed output view
   ToolCard.tsx          # Individual tool result card
 ```
-
----
-
-## Deployment
-
-The app is deployed on Vercel. To deploy your own fork:
-
-1. Push to GitHub
-2. Import the repo at [vercel.com/new](https://vercel.com/new)
-3. Add your API key(s) and `ACTIVE_PROVIDER` as environment variables in the Vercel dashboard
-4. Deploy
-
----
-
-## Notes
-
-- Groq's free tier (12k TPM) is often too limited for the full 5-step agent. Anthropic or OpenAI are more reliable for production use.
-- The `maxDuration` on the API route is set to 90 seconds to accommodate longer streamed runs.
-- PDF text extraction runs entirely in the browser via `pdfjs-dist` — no file is uploaded to any server.
-
----
-
-Built with [Vercel AI SDK](https://sdk.vercel.ai) + [Next.js](https://nextjs.org).
