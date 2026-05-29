@@ -6,6 +6,11 @@ Paste a job description and your resume. In under 30 seconds, get a tailored res
 
 ---
 
+## Screenshot
+<img width="1166" height="697" alt="image" src="https://github.com/user-attachments/assets/950303b1-aeac-4795-83ee-012e3cd20cb0" />
+
+---
+
 ## Supported providers
 
 > ⚠️ **Only Anthropic, OpenAI, and Google Gemini are supported.**
