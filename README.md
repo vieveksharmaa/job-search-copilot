@@ -56,7 +56,7 @@ All steps stream in real time.
 ## Getting started
 
 ```bash
-git clone https://github.com/vivekjangiir/job-search-copilot.git
+git clone https://github.com/vieveksharmaa/job-search-copilot.git
 cd job-search-copilot
 npm install
 ```
