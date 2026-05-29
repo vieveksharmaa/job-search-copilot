@@ -2,7 +2,7 @@
 
 Paste a job description and your resume. In under 30 seconds, get a tailored resume rewrite, personalized cover letter, and smart interview questions — powered by a 5-step AI agent.
 
-**[🚀 Live Demo →](https://job-search-copilot-rho.vercel.app/)**
+**[🚀 Live Demo →](https://job-search-copilot-git-main-ispaceified-9530s-projects.vercel.app/)**
 
 ---
 
