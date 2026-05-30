@@ -439,7 +439,7 @@ function ErrorState({ error }: { error: Error }) {
           }}
         >
           <pre style={{ fontSize: '11px', color: 'var(--zinc-400)', lineHeight: 1.8, margin: 0, fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
-{`git clone https://github.com/vivekjangiir/job-search-copilot.git
+{`git clone https://github.com/vieveksharmaa/job-search-copilot.git
 cd job-search-copilot
 npm install
 
