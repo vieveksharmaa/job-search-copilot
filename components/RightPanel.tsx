@@ -320,56 +320,137 @@ function EmptyState() {
 // ── Error state ────────────────────────────────────────────────────────────────
 
 function ErrorState({ error }: { error: Error }) {
+  const providers = [
+    {
+      name: 'Anthropic',
+      models: 'Claude Haiku / Sonnet',
+      url: 'https://console.anthropic.com/settings/keys',
+      env: 'ANTHROPIC_API_KEY',
+      note: 'Recommended — ~$0.002/run, free $5 credit',
+      color: '#c084fc',
+    },
+    {
+      name: 'OpenAI',
+      models: 'GPT-4o-mini / GPT-4o',
+      url: 'https://platform.openai.com/api-keys',
+      env: 'OPENAI_API_KEY',
+      note: 'Requires prepaid credits ($5 min)',
+      color: '#4ade80',
+    },
+    {
+      name: 'Google Gemini',
+      models: 'Gemini 2.0 Flash / 1.5 Pro',
+      url: 'https://aistudio.google.com/app/apikey',
+      env: 'GOOGLE_GENERATIVE_AI_API_KEY',
+      note: 'Free tier available via AI Studio',
+      color: '#60a5fa',
+    },
+  ]
+
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        padding: '28px 24px',
+        gap: '20px',
+        overflowY: 'auto',
         height: '100%',
-        padding: '32px',
-        textAlign: 'center',
       }}
     >
+      {/* Error banner */}
       <div
         style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          background: 'rgba(239,68,68,0.1)',
-          border: '1px solid rgba(239,68,68,0.2)',
+          padding: '14px 16px',
+          borderRadius: 'var(--radius-lg)',
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.25)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '22px',
-          marginBottom: '16px',
+          gap: '10px',
+          alignItems: 'flex-start',
         }}
       >
-        ⚠️
+        <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
+        <div>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: '#f87171', marginBottom: '4px', fontFamily: 'var(--font-sans)' }}>
+            Something went wrong
+          </p>
+          <p style={{ fontSize: '11px', color: 'var(--zinc-500)', lineHeight: 1.6, fontFamily: 'var(--font-mono)', wordBreak: 'break-word' }}>
+            {error.message}
+          </p>
+        </div>
       </div>
-      <h3
-        style={{
-          fontSize: '14px',
-          fontWeight: 600,
-          color: 'white',
-          marginBottom: '8px',
-          fontFamily: 'var(--font-sans)',
-        }}
-      >
-        Something went wrong
-      </h3>
-      <p
-        style={{
-          fontSize: '12px',
-          color: 'var(--zinc-500)',
-          maxWidth: '300px',
-          lineHeight: 1.6,
-          fontFamily: 'var(--font-sans)',
-        }}
-      >
-        {error.message}
-      </p>
+
+      {/* Supported providers */}
+      <div>
+        <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--zinc-400)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
+          Supported providers
+        </p>
+        <p style={{ fontSize: '11px', color: 'var(--zinc-600)', lineHeight: 1.6, marginBottom: '12px', fontFamily: 'var(--font-sans)' }}>
+          This app only works with <strong style={{ color: 'var(--zinc-400)' }}>Anthropic, OpenAI, or Google Gemini</strong>.
+          Groq and NVIDIA NIM are not supported — their APIs don't support multi-tool streaming agents.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {providers.map((p) => (
+            <div
+              key={p.name}
+              style={{
+                padding: '12px 14px',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--zinc-900)',
+                border: '1px solid var(--zinc-800)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: p.color, fontFamily: 'var(--font-sans)' }}>
+                  {p.name}
+                </span>
+                <span style={{ fontSize: '10px', color: 'var(--zinc-600)', fontFamily: 'var(--font-mono)' }}>
+                  {p.models}
+                </span>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--zinc-600)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>
+                {p.note}
+              </p>
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '11px', color: p.color, textDecoration: 'none', fontFamily: 'var(--font-mono)' }}
+              >
+                Get {p.env} →
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Setup instructions */}
+      <div>
+        <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--zinc-400)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
+          Run it yourself
+        </p>
+        <div
+          style={{
+            padding: '14px 16px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--zinc-900)',
+            border: '1px solid var(--zinc-800)',
+          }}
+        >
+          <pre style={{ fontSize: '11px', color: 'var(--zinc-400)', lineHeight: 1.8, margin: 0, fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
+{`git clone https://github.com/vivekjangiir/job-search-copilot.git
+cd job-search-copilot
+npm install
+
+# Create .env.local and add one key:
+ACTIVE_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-...
+
+npm run dev`}
+          </pre>
+        </div>
+      </div>
     </div>
   )
 }
